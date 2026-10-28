@@ -21,6 +21,9 @@ export const Dashboard: React.FC<DashboardProps> = ({
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [isOffline, setIsOffline] = useState<boolean>(false);
+  const [isUsingStorageFallback, setIsUsingStorageFallback] = useState<boolean>(
+    () => passengerService.isUsingFallback()
+  );
 
   // Search & Filter state
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -66,6 +69,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         err instanceof Error ? err.message : 'Connection timeout. Failed to load passenger records.';
       setError(errorMsg);
     } finally {
+      setIsUsingStorageFallback(passengerService.isUsingFallback());
       setIsLoading(false);
     }
   }, [passengerService]);
@@ -145,12 +149,10 @@ export const Dashboard: React.FC<DashboardProps> = ({
         const updated = await passengerService.update(editingPassenger.id, data);
         trackUserInteraction('update_passenger', {
           id: editingPassenger.id,
-          membershipNumber: updated.membershipNumber,
         });
       } else {
         const created = await passengerService.create(data);
         trackUserInteraction('create_passenger', {
-          membershipNumber: created.membershipNumber,
         });
       }
 
@@ -173,6 +175,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
         err instanceof Error ? err.message : 'Failed to save passenger details.';
       setError(errorMsg);
     } finally {
+      setIsUsingStorageFallback(passengerService.isUsingFallback());
       setIsSubmitting(false);
     }
   };
@@ -187,6 +190,7 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
     try {
       const deleted = await passengerService.delete(passenger.id);
+      setIsUsingStorageFallback(passengerService.isUsingFallback());
       if (deleted) {
         trackUserInteraction('delete_passenger', { id: passenger.id });
         const [all, newSummary] = await Promise.all([
@@ -200,6 +204,8 @@ export const Dashboard: React.FC<DashboardProps> = ({
       const errorMsg =
         err instanceof Error ? err.message : 'Failed to delete passenger.';
       setError(errorMsg);
+    } finally {
+      setIsUsingStorageFallback(passengerService.isUsingFallback());
     }
   };
 
@@ -232,6 +238,12 @@ export const Dashboard: React.FC<DashboardProps> = ({
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        {isUsingStorageFallback && (
+          <ErrorBanner
+            message="Browser storage is unavailable. Changes are kept only in temporary memory and will be lost when this page is reloaded or closed."
+          />
+        )}
+
         {/* Error or Offline Banner */}
         {error ? (
           <ErrorBanner
