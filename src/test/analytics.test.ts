@@ -39,13 +39,18 @@ describe('Analytics & Telemetry Simulation (REQ-12)', () => {
   });
 
   it('includes action context and metadata in the telemetry log', () => {
-    trackUserInteraction('create_passenger', { membershipNumber: 'FF-999123' });
+    trackUserInteraction('create_passenger', {
+      membershipNumber: 'FF-999123',
+      fullName: 'Test Passenger',
+      email: 'passenger@example.com',
+      source: 'form',
+    });
 
     expect(consoleSpy).toHaveBeenCalledWith(
       expect.stringContaining(ANALYTICS_LOG_MESSAGE),
       expect.objectContaining({
         action: 'create_passenger',
-        metadata: { membershipNumber: 'FF-999123' },
+        metadata: { source: 'form' },
       })
     );
   });
