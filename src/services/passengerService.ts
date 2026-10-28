@@ -15,6 +15,11 @@ export class PassengerService {
     this.storage = storage;
   }
 
+  /** Reports whether persistence is currently using the volatile in-memory fallback. */
+  isUsingFallback(): boolean {
+    return this.storage.isUsingFallback();
+  }
+
   /**
    * Retrieves all passengers from storage.
    */
