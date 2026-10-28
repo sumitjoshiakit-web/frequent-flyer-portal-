@@ -146,14 +146,13 @@ export const Dashboard: React.FC<DashboardProps> = ({
     setIsSubmitting(true);
     try {
       if (editingPassenger) {
-        const updated = await passengerService.update(editingPassenger.id, data);
+        await passengerService.update(editingPassenger.id, data);
         trackUserInteraction('update_passenger', {
           id: editingPassenger.id,
         });
       } else {
-        const created = await passengerService.create(data);
-        trackUserInteraction('create_passenger', {
-        });
+        await passengerService.create(data);
+        trackUserInteraction('create_passenger');
       }
 
       setIsModalOpen(false);
