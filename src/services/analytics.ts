@@ -5,7 +5,7 @@ export const ANALYTICS_LOG_MESSAGE =
 
 /**
  * Emits a simulated telemetry event to console.log with the exact required string.
- * Sensitive PII is omitted from metadata logging.
+ * Sensitive passenger identifiers and contact details are omitted from metadata logging.
  */
 export function trackUserInteraction(
   action: AnalyticsAction,
@@ -15,7 +15,7 @@ export function trackUserInteraction(
   const safeMetadata: Record<string, unknown> = {};
   if (metadata) {
     for (const [key, value] of Object.entries(metadata)) {
-      if (key !== 'email' && key !== 'fullName') {
+      if (!['email', 'fullName', 'membershipNumber'].includes(key)) {
         safeMetadata[key] = value;
       }
     }
